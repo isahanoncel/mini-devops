@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mini-api
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mini-api
+  template:
+    metadata:
+      labels:
+        app: mini-api
+    spec:
+      containers:
+        - name: mini-api
+          image: ghcr.io/isahanoncel/mini-devops:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
