@@ -4,7 +4,7 @@ import os from "node:os";
 const app = express();
 
 const PORT = Number(process.env.PORT ?? 3000);
-const VERSION = process.env.APP_VERSION ?? "1.0.0";
+const VERSION = process.env.APP_VERSION ?? "1.0.1";
 
 app.get("/", (_req, res) => {
   res.json({
