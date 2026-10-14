@@ -1,21 +1,29 @@
-name: CI - Build and Publish
+name: CI - Build and Deploy
 
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
+
+concurrency:
+  group: mini-devops-production
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -45,5 +53,31 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/isahanoncel/mini-devops:latest
+            ghcr.io/isahanoncel/mini-devops:${{ github.sha }}
+
+      - name: Update Kubernetes deployment annotation
+        env:
+          BUILD_SHA: ${{ github.sha }}
+        run: |
+          sed -i \
+            "s|deployment.kubernetes.io/build-sha:.*|deployment.kubernetes.io/build-sha: \"$BUILD_SHA\"|" \
+            k8s/deployment.yaml
+
+          echo "Updated deployment SHA:"
+          grep "deployment.kubernetes.io/build-sha" k8s/deployment.yaml
+
+      - name: Commit and push GitOps changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add k8s/deployment.yaml
+
+          if git diff --cached --quiet; then
+            echo "No deployment changes"
+            exit 0
+          fi
+
+          git commit -m "ci: deploy ${GITHUB_SHA} [skip ci]"
+          git push origin HEAD:master

@@ -1,38 +1,82 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
   name: mini-api
   namespace: default
+  labels:
+    app: mini-api
+
 spec:
   replicas: 2
+
+  revisionHistoryLimit: 5
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
   selector:
     matchLabels:
       app: mini-api
+
   template:
     metadata:
       labels:
         app: mini-api
+
+      annotations:
+        deployment.kubernetes.io/build-sha: "initial"
+
     spec:
+      terminationGracePeriodSeconds: 30
+
       containers:
         - name: mini-api
+
           image: ghcr.io/isahanoncel/mini-devops:latest
           imagePullPolicy: Always
+
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+
+          env:
+            - name: NODE_ENV
+              value: production
+
+            - name: PORT
+              value: "3000"
+
+            - name: APP_VERSION
+              value: "1.0.0"
+
           readinessProbe:
             httpGet:
               path: /health
               port: 3000
+            initialDelaySeconds: 3
             periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
           livenessProbe:
             httpGet:
               path: /health
               port: 3000
+            initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
           resources:
             requests:
               cpu: 50m
               memory: 64Mi
+
             limits:
               cpu: 500m
               memory: 256Mi

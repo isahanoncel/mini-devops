@@ -1,22 +1,28 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
+
 metadata:
   name: mini-web-ingress
   namespace: default
+
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+
 spec:
   ingressClassName: traefik
+
   tls:
     - hosts:
         - devops.genclerihabolgesi.com
       secretName: mini-web-tls
+
   rules:
     - host: devops.genclerihabolgesi.com
       http:
         paths:
           - path: /
             pathType: Prefix
+
             backend:
               service:
                 name: mini-api-service
