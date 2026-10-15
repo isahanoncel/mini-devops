@@ -1,13 +1,10 @@
 apiVersion: v1
 kind: Service
-
 metadata:
   name: mini-api-service
   namespace: default
-
   labels:
     app: mini-api
-
 spec:
   type: ClusterIP
 
