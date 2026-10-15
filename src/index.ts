@@ -43,8 +43,7 @@ app.use((req, res, next) => {
   const start = process.hrtime.bigint();
 
   res.on("finish", () => {
-    const duration =
-      Number(process.hrtime.bigint() - start) / 1e9;
+    const duration = Number(process.hrtime.bigint() - start) / 1e9;
 
     const route = req.route?.path ?? req.path;
 
@@ -97,6 +96,29 @@ app.get("/metrics", async (_req, res) => {
   } catch {
     res.status(500).end("Metrics unavailable");
   }
+});
+
+// Stress
+app.get("/api/stress", (req, res) => {
+  const duration = Math.min(
+    Math.max(Number(req.query.duration) || 200, 1),
+
+    500,
+  );
+
+  const end = Date.now() + duration;
+
+  while (Date.now() < end) {
+    Math.sqrt(Math.random());
+  }
+
+  res.json({
+    status: "completed",
+
+    duration,
+
+    pod: os.hostname(),
+  });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
