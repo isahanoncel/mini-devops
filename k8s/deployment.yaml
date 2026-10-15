@@ -28,7 +28,7 @@ spec:
         app: mini-api
 
       annotations:
-        deployment.kubernetes.io/build-sha: "6266a52cc64987fe663e902c3d0c226390791b4c"
+        deployment.kubernetes.io/build-sha: "b7800639607438225ebe423e581bfb8c5e9ec8b6"
 
     spec:
       terminationGracePeriodSeconds: 30
