@@ -8,8 +8,6 @@ metadata:
     app: mini-api
 
 spec:
-  replicas: 2
-
   revisionHistoryLimit: 5
 
   strategy:
