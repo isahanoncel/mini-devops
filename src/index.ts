@@ -9,7 +9,7 @@ const VERSION = process.env.APP_VERSION ?? "1.0.1";
 app.get("/", (_req, res) => {
   res.json({
     success: true,
-    message: "CI/CD IS WORKING!",
+    message: "ARGO CD AUTO DEPLOY TEST V2",
     version: VERSION,
     pod: os.hostname(),
     timestamp: new Date().toISOString(),
